@@ -18,6 +18,21 @@ def test_required_denied(tmp_path):
 def test_mixed_subjects(tmp_path):
     db=setup(tmp_path);con=connect(db);cfg=json.loads(con.execute('SELECT config_raw FROM batch').fetchone()[0]);cfg['subjects']['req-1']['persons']=['p1','p2'];con.execute('UPDATE batch SET config_raw=?',(json.dumps(cfg).encode(),));con.commit();con.close()
     assert evaluate(db)['req-1']=='拒绝'
+    row=connect(db).execute("SELECT detail FROM decision WHERE subject='req-1' ORDER BY id DESC LIMIT 1").fetchone()
+    detail=json.loads(row[0]);assert detail['allowed_fields']==[]
+    assert detail['partitions']['p1']['allowed_fields']==['score_band']
+    assert detail['partitions']['p2']['status']=='拒绝'
+
+def test_mixed_grants_never_union_disjoint_fields(tmp_path):
+    db=setup(tmp_path);con=connect(db);cfg=json.loads(con.execute('SELECT config_raw FROM batch').fetchone()[0])
+    cfg['subjects']['req-1'].update(persons=['p1','p2'],fields=['score_band','name'],required=[])
+    con.execute('UPDATE batch SET config_raw=?',(json.dumps(cfg).encode(),));con.commit();con.close()
+    p=tmp_path/'grant-p2.jsonl';p.write_text(json.dumps({'event_key':'g3','subject':'req-1','kind':'grant',
+      'person':'p2','purpose':'research','fields':['name'],'from':'2026-01-01','until':'2027-01-01','at':'2026-01-01'}),encoding='utf-8')
+    load(db,p)
+    assert evaluate(db)['req-1']=='拒绝'
+    detail=json.loads(connect(db).execute("SELECT detail FROM decision WHERE subject='req-1' ORDER BY id DESC LIMIT 1").fetchone()[0])
+    assert detail['allowed_fields']==[] and 'no_common_field' in detail['issues']
 def test_lineage_diamond_and_cycle():
     assert _ancestors('d',{'d':['b','c'],'b':['a'],'c':['a']})=={'a','b','c','d'}
     import pytest
@@ -41,6 +56,40 @@ def test_partial_field_mapping_remains_unknown(tmp_path):
     cfg['subjects']['req-1']['version']='d0';cfg['subjects']['req-1']['fields']=['unmapped_old'];cfg['version_mappings']={'d0':{'band_old':'score_band'}}
     con.execute('UPDATE batch SET config_raw=?',(json.dumps(cfg).encode(),));con.commit();con.close()
     assert evaluate(db)['req-1']=='无法判定'
+def test_version_mapping_collision_is_unknown_not_licensed(tmp_path):
+    db=setup(tmp_path);con=connect(db);cfg=json.loads(con.execute('SELECT config_raw FROM batch').fetchone()[0])
+    cfg['subjects']['req-1'].update(version='d0',fields=['old_score','old_band'],required=['old_band'])
+    cfg['version_mappings']={'d0':{'old_score':'score_band','old_band':'score_band'}}
+    con.execute('UPDATE batch SET config_raw=?',(json.dumps(cfg).encode(),));con.commit();con.close()
+    assert evaluate(db)['req-1']=='无法判定'
+    detail=json.loads(connect(db).execute("SELECT detail FROM decision WHERE subject='req-1' ORDER BY id DESC LIMIT 1").fetchone()[0])
+    assert 'ambiguous_version_mapping' in detail['issues']
+
+def test_revocation_wins_same_instant_and_purpose_cycle_is_unknown(tmp_path):
+    db=setup(tmp_path);p=tmp_path/'rev.jsonl';p.write_text(json.dumps({'event_key':'a-revoke','subject':'req-1',
+       'kind':'revoke','person':'p1','at':'2026-01-01'}),encoding='utf-8');load(db,p)
+    assert evaluate(db)['req-1']=='拒绝'
+    db2=setup(tmp_path/'cycle');con=connect(db2);cfg=json.loads(con.execute('SELECT config_raw FROM batch').fetchone()[0])
+    cfg['purpose_tree']={'analytics':'research','research':'analytics'}
+    cfg['subjects']['req-1']['purpose']='analytics'
+    con.execute('UPDATE batch SET config_raw=?',(json.dumps(cfg).encode(),));con.commit();con.close()
+    # Granting a different root forces traversal through the cycle.
+    p2=tmp_path/'cycle-grant.jsonl';p2.write_text(json.dumps({'event_key':'g-cycle','subject':'req-1','kind':'grant',
+       'person':'p1','purpose':'unrelated','fields':['score','score_band'],'from':'2026-01-01',
+       'until':'2027-01-01','at':'2026-02-01'}),encoding='utf-8');load(db2,p2)
+    assert evaluate(db2)['req-1']=='无法判定'
+
+def test_offset_request_crosses_grant_expiry_and_naive_event_isolated(tmp_path):
+    db=setup(tmp_path);con=connect(db);cfg=json.loads(con.execute('SELECT config_raw FROM batch').fetchone()[0])
+    cfg['subjects']['req-1']['at']='2026-05-31T23:30:00-02:00'
+    con.execute('UPDATE batch SET config_raw=?',(json.dumps(cfg).encode(),));con.commit();con.close()
+    p=tmp_path/'events.jsonl';p.write_text('\n'.join(json.dumps(x) for x in [
+      {'event_key':'g-late','subject':'req-1','kind':'grant','person':'p1','purpose':'research',
+       'fields':['score','score_band'],'from':'2026-01-01','until':'2026-06-01T00:00:00Z','at':'2026-05-01'},
+      {'event_key':'bad-time','subject':'req-1','kind':'revoke','person':'p1','at':'2026-06-01T01:00:00'}]),encoding='utf-8')
+    assert load(db,p)==1
+    assert evaluate(db)['req-1']=='拒绝'
+    assert connect(db).execute("SELECT 1 FROM issue WHERE code='parse_error' AND line_no=2").fetchone()
 def test_grant_narrowing(tmp_path):
     db=setup(tmp_path);p=tmp_path/'n.jsonl';p.write_text(json.dumps({'event_key':'n1','subject':'req-1','kind':'narrow','person':'p1','fields':['name'],'at':'2026-05-01'}));load(db,p)
     assert evaluate(db)['req-1']=='拒绝'

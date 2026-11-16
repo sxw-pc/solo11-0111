@@ -1,6 +1,7 @@
 import hashlib,json
 from pathlib import Path
 from .store import connect
+from .timeline import instant
 def hash_bytes(raw):return hashlib.sha256(raw).hexdigest()
 def initialize(db_path,config_path):
     raw=Path(config_path).read_bytes();config=json.loads(raw);db=connect(db_path)
@@ -26,6 +27,10 @@ def load(db_path,path):
             try:
                 item=json.loads(line);key=str(item['event_key']);subject=str(item['subject']);kind=str(item['kind'])
                 if not db.execute('SELECT 1 FROM subject WHERE id=?',(subject,)).fetchone():raise ValueError('unknown_subject')
+                if kind not in {'grant','narrow','revoke'}:raise ValueError('unknown_event_kind')
+                instant(item['at'])
+                if kind=='grant':
+                    if instant(item['from'])>=instant(item['until']):raise ValueError('invalid_grant_interval')
                 digest=hash_bytes(line.encode());old=db.execute('SELECT digest FROM raw_event WHERE event_key=?',(key,)).fetchone()
                 if old:
                     if old['digest']!=digest:db.execute('INSERT INTO issue(source_id,line_no,subject,code,detail) VALUES (?,?,?,?,?)',(sid,line_no,subject,'identity_conflict',key))
