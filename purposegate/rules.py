@@ -19,12 +19,14 @@ def _ancestors(field,lineage):
         visiting.remove(item);seen.add(item)
     visit(field);return seen
 def evaluate(path):
-    db=connect(path);cfg=_config(db);events=[json.loads(r['payload']) for r in db.execute('SELECT * FROM raw_event ORDER BY at,id')]
+    db=connect(path);cfg=_config(db);event_rows=[dict(r) for r in db.execute('SELECT * FROM raw_event ORDER BY at,id')]
+    events=[json.loads(r['payload']) for r in event_rows]
+    event_by_key={json.loads(r['payload'])['event_key']:r for r in event_rows}
     result={}
     with db:
         rid=db.execute("INSERT INTO run(batch_id,status) VALUES (?, '已校验')",(cfg['batch_id'],)).lastrowid
         for key,spec in cfg['subjects'].items():
-            issues=[];reasons={};per_person={};persons=spec['persons'];requested=spec['fields'];valid_fields=set(cfg['dataset']['fields'])
+            issues=[];reasons={};per_person={};used_keys=set();persons=spec['persons'];requested=spec['fields'];valid_fields=set(cfg['dataset']['fields'])
             if not persons:issues.append('empty_subject_set')
             if spec['version']!=cfg['dataset']['version']:
                 mapping=cfg.get('version_mappings',{}).get(spec['version'])
@@ -40,6 +42,7 @@ def evaluate(path):
             if spec['purpose'] not in cfg['purpose_tree'] and spec['purpose'] not in cfg['purpose_roots']:issues.append('unknown_purpose')
             for person in persons:
                 history=[e for e in events if e['subject']==key and e['kind'] in ('grant','narrow','revoke') and e.get('person')==person]
+                used_keys.update(e['event_key'] for e in history if instant(e['at'])<=instant(spec['at']))
                 grant=active_grant(history,spec['at'])
                 try:purpose_ok=grant is not None and _allowed_purpose(spec['purpose'],grant['purpose'],cfg['purpose_tree'])
                 except ValueError:
@@ -69,6 +72,10 @@ def evaluate(path):
                                              for p in persons},'issues':sorted(set(issues))},ensure_ascii=False)
             for code in sorted(set(issues)):db.execute('INSERT INTO issue(run_id,subject,code,detail) VALUES (?,?,?,?)',(rid,key,code,code))
             db.execute('INSERT INTO evidence(run_id,subject,rule_id,detail) VALUES (?,?,?,?)',(rid,key,cfg['rule_version'],detail))
+            for event_key in sorted(used_keys):
+                event=event_by_key[event_key]
+                db.execute('INSERT INTO evidence(run_id,subject,source_id,event_id,rule_id,detail) VALUES (?,?,?,?,?,?)',
+                           (rid,key,event['source_id'],event['id'],cfg['rule_version'],'authorization_history'))
             db.execute('INSERT INTO decision(run_id,subject,status,detail) VALUES (?,?,?,?)',(rid,key,status,detail));result[key]=status
         db.execute("UPDATE run SET status=CASE WHEN EXISTS(SELECT 1 FROM decision WHERE run_id=? AND status='无法判定') THEN '待核' ELSE '已判定' END,ended_at=CURRENT_TIMESTAMP WHERE id=?",(rid,rid))
     db.close();return result

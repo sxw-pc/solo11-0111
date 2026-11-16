@@ -108,3 +108,10 @@ def test_independent_recheck_detects_tamper(tmp_path):
     db=setup(tmp_path);evaluate(db);assert verify_decisions(db)==[]
     con=connect(db);con.execute("UPDATE decision SET status='允许' WHERE subject='req-2'");con.commit();con.close()
     assert 'decision_mismatch:req-2' in verify_decisions(db)
+def test_independent_source_chain_rejects_rewritten_event(tmp_path):
+    db=setup(tmp_path);evaluate(db)
+    assert verify(db)==[]
+    con=connect(db)
+    con.execute("UPDATE raw_event SET payload='{}' WHERE id=(SELECT min(id) FROM raw_event)")
+    con.commit();con.close()
+    assert any(problem.startswith('event:') for problem in verify(db))
