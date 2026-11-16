@@ -1,0 +1,54 @@
+{
+  "batch_id": "purpose-demo",
+  "rule_version": "v1",
+  "dataset": {
+    "version": "d1",
+    "fields": [
+      "name",
+      "score",
+      "score_band"
+    ]
+  },
+  "purpose_tree": {
+    "analytics": "research",
+    "research": null
+  },
+  "purpose_roots": [
+    "research"
+  ],
+  "lineage": {
+    "score_band": [
+      "score"
+    ]
+  },
+  "subjects": {
+    "req-1": {
+      "version": "d1",
+      "persons": [
+        "p1"
+      ],
+      "purpose": "analytics",
+      "fields": [
+        "score_band"
+      ],
+      "required": [
+        "score_band"
+      ],
+      "at": "2026-06-01"
+    },
+    "req-2": {
+      "version": "d1",
+      "persons": [
+        "p2"
+      ],
+      "purpose": "analytics",
+      "fields": [
+        "name"
+      ],
+      "required": [
+        "name"
+      ],
+      "at": "2026-06-01"
+    }
+  }
+}
