@@ -30,6 +30,17 @@ def test_report_and_verify(tmp_path):
 def test_unknown_version(tmp_path):
     db=setup(tmp_path);con=connect(db);cfg=json.loads(con.execute('SELECT config_raw FROM batch').fetchone()[0]);cfg['subjects']['req-1']['version']='d2';con.execute('UPDATE batch SET config_raw=?',(json.dumps(cfg).encode(),));con.commit();con.close()
     assert evaluate(db)['req-1']=='无法判定'
+def test_explicit_field_rename_mapping(tmp_path):
+    db=setup(tmp_path);con=connect(db);cfg=json.loads(con.execute('SELECT config_raw FROM batch').fetchone()[0])
+    cfg['subjects']['req-1']['version']='d0';cfg['subjects']['req-1']['fields']=['band_old'];cfg['subjects']['req-1']['required']=['band_old']
+    cfg['version_mappings']={'d0':{'band_old':'score_band'}}
+    con.execute('UPDATE batch SET config_raw=?',(json.dumps(cfg).encode(),));con.commit();con.close()
+    assert evaluate(db)['req-1']=='允许'
+def test_partial_field_mapping_remains_unknown(tmp_path):
+    db=setup(tmp_path);con=connect(db);cfg=json.loads(con.execute('SELECT config_raw FROM batch').fetchone()[0])
+    cfg['subjects']['req-1']['version']='d0';cfg['subjects']['req-1']['fields']=['unmapped_old'];cfg['version_mappings']={'d0':{'band_old':'score_band'}}
+    con.execute('UPDATE batch SET config_raw=?',(json.dumps(cfg).encode(),));con.commit();con.close()
+    assert evaluate(db)['req-1']=='无法判定'
 def test_grant_narrowing(tmp_path):
     db=setup(tmp_path);p=tmp_path/'n.jsonl';p.write_text(json.dumps({'event_key':'n1','subject':'req-1','kind':'narrow','person':'p1','fields':['name'],'at':'2026-05-01'}));load(db,p)
     assert evaluate(db)['req-1']=='拒绝'

@@ -4,6 +4,8 @@
 
 ## 实体关系
 
+历史数据集版本如发生字段重命名，配置中的 `version_mappings` 必须逐字段声明旧名到当前名的映射；没有映射的版本或字段进入无法判定，不能默许同名兼容。
+
 Batch 关联多个 Subject 与 SourceFile；SourceFile 的原始字节和 SHA-256 不覆盖，RawEvent 引用来源行；RuleVersion 被 Evidence 引用；一次 Run 关联多个 Decision、Evidence、Issue。非法输入留下 Issue，不写出无依据的成功结论。
 
 ## 状态和失败

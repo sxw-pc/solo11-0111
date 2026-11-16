@@ -23,7 +23,12 @@ def evaluate(path):
         rid=db.execute("INSERT INTO run(batch_id,status) VALUES (?, '已校验')",(cfg['batch_id'],)).lastrowid
         for key,spec in cfg['subjects'].items():
             issues=[];reasons={};allowed=set();persons=spec['persons'];requested=spec['fields'];valid_fields=set(cfg['dataset']['fields'])
-            if spec['version']!=cfg['dataset']['version']:issues.append('version_mismatch')
+            if spec['version']!=cfg['dataset']['version']:
+                mapping=cfg.get('version_mappings',{}).get(spec['version'])
+                if not mapping:issues.append('version_mismatch')
+                else:
+                    requested=[mapping.get(f,f) for f in requested]
+                    spec={**spec,'required':[mapping.get(f,f) for f in spec['required']]}
             if any(f not in valid_fields for f in requested):issues.append('unknown_field')
             if spec['purpose'] not in cfg['purpose_tree'] and spec['purpose'] not in cfg['purpose_roots']:issues.append('unknown_purpose')
             for person in persons:
