@@ -1,8 +1,16 @@
-import hashlib,json
+import hashlib,json,math
 from pathlib import Path
 from .store import connect
 from .timeline import instant
 def hash_bytes(raw):return hashlib.sha256(raw).hexdigest()
+def valid_budget(budget):
+    """A budget declares non-negative finite epsilon/delta for one dataset version."""
+    if not isinstance(budget,dict):return False
+    for key in ('epsilon','delta'):
+        value=budget.get(key)
+        if isinstance(value,bool) or not isinstance(value,(int,float)) or not math.isfinite(value) or value<0:return False
+    version=budget.get('dataset_version')
+    return isinstance(version,str) and bool(version)
 def initialize(db_path,config_path):
     raw=Path(config_path).read_bytes();config=json.loads(raw);db=connect(db_path)
     bid=config['batch_id'];digest=hash_bytes(raw)
@@ -31,6 +39,8 @@ def load(db_path,path):
                 instant(item['at'])
                 if kind=='grant':
                     if instant(item['from'])>=instant(item['until']):raise ValueError('invalid_grant_interval')
+                if 'budget' in item and (kind!='grant' or not valid_budget(item['budget'])):raise ValueError('invalid_budget')
+                if kind=='narrow' and 'purpose' in item and (not isinstance(item['purpose'],str) or not item['purpose']):raise ValueError('invalid_narrow_purpose')
                 digest=hash_bytes(line.encode());old=db.execute('SELECT digest FROM raw_event WHERE event_key=?',(key,)).fetchone()
                 if old:
                     if old['digest']!=digest:db.execute('INSERT INTO issue(source_id,line_no,subject,code,detail) VALUES (?,?,?,?,?)',(sid,line_no,subject,'identity_conflict',key))

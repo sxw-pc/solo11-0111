@@ -1,4 +1,6 @@
 import json
+import hashlib
+import math
 from .store import connect
 from .timeline import active_grant,instant
 def _config(db):return json.loads(db.execute('SELECT config_raw FROM batch LIMIT 1').fetchone()[0])
