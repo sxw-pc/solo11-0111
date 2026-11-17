@@ -13,6 +13,42 @@ CREATE TABLE IF NOT EXISTS evidence(id INTEGER PRIMARY KEY, run_id INTEGER NOT N
 CREATE TABLE IF NOT EXISTS decision(id INTEGER PRIMARY KEY, run_id INTEGER NOT NULL REFERENCES run(id), subject TEXT NOT NULL, status TEXT NOT NULL, detail TEXT NOT NULL, UNIQUE(run_id,subject));
 CREATE TABLE IF NOT EXISTS execution(id INTEGER PRIMARY KEY, run_id INTEGER REFERENCES run(id), subject TEXT NOT NULL, action TEXT NOT NULL, before_hash TEXT, after_state TEXT NOT NULL, at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, UNIQUE(subject,action,before_hash));
 CREATE TABLE IF NOT EXISTS plan(id INTEGER PRIMARY KEY, run_id INTEGER NOT NULL REFERENCES run(id), digest TEXT NOT NULL UNIQUE, body TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS delegation_chain(
+ id INTEGER PRIMARY KEY,
+ run_id INTEGER NOT NULL REFERENCES run(id),
+ subject TEXT NOT NULL,
+ final_user TEXT NOT NULL,
+ chain_key TEXT NOT NULL,
+ status TEXT NOT NULL,
+ contract TEXT NOT NULL,
+ contract_event_key TEXT,
+ contract_source_sha TEXT,
+ contract_recorded_at TEXT,
+ field_intersection TEXT NOT NULL,
+ detail TEXT NOT NULL,
+ UNIQUE(run_id,subject,final_user,chain_key));
+CREATE TABLE IF NOT EXISTS delegation_link(
+ id INTEGER PRIMARY KEY,
+ chain_id INTEGER NOT NULL REFERENCES delegation_chain(id),
+ level INTEGER NOT NULL,
+ event_key TEXT NOT NULL,
+ event_id INTEGER REFERENCES raw_event(id),
+ source_id INTEGER REFERENCES source_file(id),
+ source_sha TEXT,
+ delegator TEXT,
+ delegatee TEXT,
+ purpose TEXT,
+ fields_json TEXT,
+ field_intersection TEXT,
+ from_at TEXT,
+ until_at TEXT,
+ signed_at TEXT,
+ revocation_effect TEXT,
+ irrevocable_until TEXT,
+ status TEXT NOT NULL,
+ effective_until TEXT,
+ detail TEXT NOT NULL,
+ UNIQUE(chain_id,level));
 """
 def connect(path):
     path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)

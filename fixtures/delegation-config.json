@@ -1,0 +1,405 @@
+{
+  "batch_id": "delegation-fixture",
+  "rule_version": "v1",
+  "dataset": {
+    "version": "d1",
+    "fields": [
+      "name",
+      "score",
+      "score_band",
+      "region",
+      "email"
+    ]
+  },
+  "purpose_tree": {
+    "analytics": "research",
+    "research": null,
+    "marketing": "analytics",
+    "profiling": "research"
+  },
+  "purpose_roots": [
+    "research"
+  ],
+  "lineage": {
+    "score_band": [
+      "score"
+    ]
+  },
+  "subjects": {
+    "req-immediate": {
+      "version": "d1",
+      "persons": [
+        "ds1"
+      ],
+      "delegatees": {
+        "ds1": "vb"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score_band"
+      ],
+      "required": [
+        "score_band"
+      ],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-fixed": {
+      "version": "d1",
+      "persons": [
+        "ds2"
+      ],
+      "delegatees": {
+        "ds2": "vfb"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score_band"
+      ],
+      "required": [
+        "score_band"
+      ],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-multilevel": {
+      "version": "d1",
+      "persons": [
+        "ds3"
+      ],
+      "delegatees": {
+        "ds3": "vc3"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score",
+        "score_band"
+      ],
+      "required": [
+        "score"
+      ],
+      "at": "2026-06-01T14:00:00Z"
+    },
+    "req-parallel": {
+      "version": "d1",
+      "persons": [
+        "ds4"
+      ],
+      "delegatees": {
+        "ds4": "vendor-e"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score",
+        "score_band"
+      ],
+      "required": [
+        "score_band"
+      ],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-conflict": {
+      "version": "d1",
+      "persons": [
+        "ds5"
+      ],
+      "delegatees": {
+        "ds5": "vendor-e"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score",
+        "region"
+      ],
+      "required": [],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-cycle": {
+      "version": "d1",
+      "persons": [
+        "ds6"
+      ],
+      "delegatees": {
+        "ds6": "vendor-g2"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-boundary": {
+      "version": "d1",
+      "persons": [
+        "ds7"
+      ],
+      "delegatees": {
+        "ds7": "vendor-ba"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [
+        "score"
+      ],
+      "at": "2026-06-01T16:00:00Z"
+    },
+    "req-sametime": {
+      "version": "d1",
+      "persons": [
+        "ds9"
+      ],
+      "delegatees": {
+        "ds9": "vendor-sa"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [
+        "score"
+      ],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-redelegate-immediate": {
+      "version": "d1",
+      "persons": [
+        "ds8"
+      ],
+      "delegatees": {
+        "ds8": "vendor-rc"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-redelegate-fixed": {
+      "version": "d1",
+      "persons": [
+        "ds10"
+      ],
+      "delegatees": {
+        "ds10": "vendor-frc"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-overbroad": {
+      "version": "d1",
+      "persons": [
+        "ds11"
+      ],
+      "delegatees": {
+        "ds11": "vendor-ob"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [
+        "score"
+      ],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-purpose-widen": {
+      "version": "d1",
+      "persons": [
+        "ds12"
+      ],
+      "delegatees": {
+        "ds12": "vendor-pwb"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [
+        "score"
+      ],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-narrow": {
+      "version": "d1",
+      "persons": [
+        "ds13"
+      ],
+      "delegatees": {
+        "ds13": "vendor-nb"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score",
+        "region"
+      ],
+      "required": [
+        "score"
+      ],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-nosource": {
+      "version": "d1",
+      "persons": [
+        "ds14"
+      ],
+      "delegatees": {
+        "ds14": "vendor-nsb"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-conflict-event": {
+      "version": "d1",
+      "persons": [
+        "ds15"
+      ],
+      "delegatees": {
+        "ds15": "vendor-ce"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-issuer": {
+      "version": "d1",
+      "persons": [
+        "ds16"
+      ],
+      "delegatees": {
+        "ds16": "vendor-jb"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-contract-switch": {
+      "version": "d1",
+      "persons": [
+        "ds17"
+      ],
+      "delegatees": {
+        "ds17": "vendor-csb"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [
+        "score"
+      ],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-split": {
+      "version": "d1",
+      "persons": [
+        "ds18"
+      ],
+      "delegatees": {
+        "ds18": "vendor-sp"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score",
+        "region"
+      ],
+      "required": [],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-nodelegate": {
+      "version": "d1",
+      "persons": [
+        "ds19"
+      ],
+      "delegatees": {
+        "ds19": "vendor-nd"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-fixed-late": {
+      "version": "d1",
+      "persons": [
+        "ds20"
+      ],
+      "delegatees": {
+        "ds20": "vfb2"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [
+        "score"
+      ],
+      "at": "2026-06-01T16:30:00Z"
+    },
+    "req-mixed": {
+      "version": "d1",
+      "persons": [
+        "dm1",
+        "dm2"
+      ],
+      "delegatees": {
+        "dm1": "vendor-mx"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score_band"
+      ],
+      "required": [],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-orphan": {
+      "version": "d1",
+      "persons": [
+        "ds21"
+      ],
+      "delegatees": {
+        "ds21": "vendor-or"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [],
+      "at": "2026-06-01T13:00:00Z"
+    },
+    "req-fixed-grandchild": {
+      "version": "d1",
+      "persons": [
+        "ds23"
+      ],
+      "delegatees": {
+        "ds23": "vgc"
+      },
+      "purpose": "analytics",
+      "fields": [
+        "score"
+      ],
+      "required": [
+        "score"
+      ],
+      "at": "2026-06-01T13:00:00Z"
+    }
+  }
+}

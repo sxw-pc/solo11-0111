@@ -15,12 +15,20 @@ def main():
         x=sub.add_parser(name);x.add_argument('--db',required=True);x.add_argument('--sandbox');x.add_argument('--out')
     dp=sub.add_parser('delivery-prepare');dp.add_argument('--db',required=True);dp.add_argument('--id',required=True);dp.add_argument('--request',required=True);dp.add_argument('--values',required=True)
     dr=sub.add_parser('delivery-release');dr.add_argument('--db',required=True);dr.add_argument('--id',required=True);dr.add_argument('--values',required=True);dr.add_argument('--out',required=True)
+    dg=sub.add_parser('delegation-report');dg.add_argument('--db',required=True);dg.add_argument('--subject');dg.add_argument('--out')
     ur=sub.add_parser('usage-record');ur.add_argument('--db',required=True);ur.add_argument('--events',required=True)
     ua=sub.add_parser('usage-audit');ua.add_argument('--db',required=True);ua.add_argument('--id',required=True)
     a=p.parse_args()
     if a.command=='demo':
-        work=Path(a.workdir or tempfile.mkdtemp(prefix='evidence-'));work.mkdir(parents=True,exist_ok=True);db=work/'ledger.db';fixture=Path(__file__).resolve().parent.parent/'fixtures'
+        work=Path(a.workdir or tempfile.mkdtemp(prefix='evidence-'));work.mkdir(parents=True,exist_ok=True)
+        fixture=Path(__file__).resolve().parent.parent/'fixtures'
+        db=work/'ledger.db'
         initialize(db,fixture/'config.json');load(db,fixture/'events.jsonl');print(evaluate(db));print(export(db,work/'report.json'))
+        # Delegation demo runs in its own ledger so the direct-authorization
+        # history above stays exactly as it was.
+        ddb=work/'delegation.db'
+        initialize(ddb,fixture/'delegation-config.json');load(ddb,fixture/'delegation-events.jsonl')
+        print(evaluate(ddb));print(export(ddb,work/'delegation-report.json'))
     elif a.command=='init':print(initialize(a.db,a.config))
     elif a.command=='load':print(load(a.db,a.path))
     elif a.command=='evaluate':print(evaluate(a.db))
@@ -52,5 +60,8 @@ def main():
     elif a.command=='usage-audit':
         from .usage import audit
         print(audit(a.db,a.id))
+    elif a.command=='delegation-report':
+        from .report import export_chains
+        print(export_chains(a.db,a.subject,a.out))
     else:print(action(a.command,a.db,sandbox=getattr(a,'sandbox',None),out=getattr(a,'out',None)))
 if __name__=='__main__':main()
