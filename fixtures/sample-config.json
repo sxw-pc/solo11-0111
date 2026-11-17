@@ -1,0 +1,6 @@
+{
+  "batch_id": "sample-demo",
+  "rule_version": "sample-v1",
+  "dataset": {"version": "d2", "fields": ["score"]},
+  "subjects": {}
+}

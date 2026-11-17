@@ -1,0 +1,5 @@
+{
+  "plan_id": "sample-manual-1",
+  "frame_id": "frame-S1",
+  "allocation": {"A": 2, "B": 2}
+}
