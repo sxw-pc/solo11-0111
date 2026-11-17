@@ -1,0 +1,9 @@
+{
+  "plan_id": "quality-manual-1",
+  "source_id": "quality-S1",
+  "rows": [
+    {"id": "r1", "values": {"zip": "100", "region": "West", "zone": "W"}},
+    {"id": "r2", "values": {"zip": "100", "region": "West", "zone": "W"}},
+    {"id": "r3", "values": {"zip": "100", "region": "West", "zone": "W"}}
+  ]
+}

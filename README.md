@@ -1,5 +1,7 @@
 # 用途授权判定台
 
+合成数据质量台账可用 `quality-source` 登记带函数依赖、域、锁定字段和单元可信权重的表，再用 `quality-manual` 检查人工修复后的跨行依赖、改动单元数与可信成本。示例：`python -m purposegate init --db ledger.db --config fixtures/quality-config.json`，再运行 `python -m purposegate quality-source --db ledger.db --input fixtures/quality-source.json` 和 `python -m purposegate quality-manual --db ledger.db --input fixtures/quality-manual.json`。当前 `purposegate/quality.py` 不选择最小成本修复，也不回写原表。
+
 完全离线，输入与主体均为合成数据。`python -m pip install . --no-build-isolation` 安装；`python -m purposegate demo` 一条命令初始化 SQLite、导入 fixture、计算、生成 JSON/Markdown；`python -m pytest -q` 测试。
 
 数据流：SourceFile 原始字节及哈希 → RawEvent → Subject 与 RuleVersion → Run 内的 Decision、Evidence、Issue → 报告；身份冲突和坏行保留为 Issue。相同文件哈希与事件键幂等。

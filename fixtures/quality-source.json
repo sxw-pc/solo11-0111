@@ -1,0 +1,20 @@
+{
+  "source_id": "quality-S1",
+  "batch_id": "quality-demo",
+  "dataset_version": "d2",
+  "fields": ["zip", "region", "zone"],
+  "immutable_fields": ["zip"],
+  "domains": {"zip": ["100"], "region": ["East", "West"], "zone": ["E", "W"]},
+  "functional_dependencies": [
+    {"determinant": ["zip"], "dependent": ["region"]},
+    {"determinant": ["region"], "dependent": ["zone"]}
+  ],
+  "rows": [
+    {"id": "r1", "values": {"zip": "100", "region": "East", "zone": "E"},
+     "trust_weights": {"zip": 100, "region": 10, "zone": 10}},
+    {"id": "r2", "values": {"zip": "100", "region": "West", "zone": "W"},
+     "trust_weights": {"zip": 100, "region": 1, "zone": 1}},
+    {"id": "r3", "values": {"zip": "100", "region": "West", "zone": "W"},
+     "trust_weights": {"zip": 100, "region": 1, "zone": 1}}
+  ]
+}

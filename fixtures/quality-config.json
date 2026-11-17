@@ -1,0 +1,6 @@
+{
+  "batch_id": "quality-demo",
+  "rule_version": "quality-v1",
+  "dataset": {"version": "d2", "fields": ["zip", "region", "zone"]},
+  "subjects": {}
+}
