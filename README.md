@@ -1,5 +1,7 @@
 # 用途授权判定台
 
+离线合成 cohort 原值与主体更正可通过 `python -m purposegate cohort-snapshot --db DB fixtures/cohort-snapshot.json` 和 `python -m purposegate cohort-corrections --db DB fixtures/cohort-corrections.jsonl` 登记。`purposegate/cohort.py` 只保存原始证据，尚不生成更正后的均值、名次或授权判定。
+
 完全离线，输入与主体均为合成数据。`python -m pip install . --no-build-isolation` 安装；`python -m purposegate demo` 一条命令初始化 SQLite、导入 fixture、计算、生成 JSON/Markdown；`python -m pytest -q` 测试。
 
 数据流：SourceFile 原始字节及哈希 → RawEvent → Subject 与 RuleVersion → Run 内的 Decision、Evidence、Issue → 报告；身份冲突和坏行保留为 Issue。相同文件哈希与事件键幂等。

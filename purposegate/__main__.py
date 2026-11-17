@@ -8,6 +8,8 @@ def main():
     d=sub.add_parser('demo');d.add_argument('--workdir')
     i=sub.add_parser('init');i.add_argument('--db',required=True);i.add_argument('--config',required=True)
     l=sub.add_parser('load');l.add_argument('--db',required=True);l.add_argument('path')
+    cs=sub.add_parser('cohort-snapshot');cs.add_argument('--db',required=True);cs.add_argument('path')
+    cc=sub.add_parser('cohort-corrections');cc.add_argument('--db',required=True);cc.add_argument('path')
     e=sub.add_parser('evaluate');e.add_argument('--db',required=True)
     r=sub.add_parser('report');r.add_argument('--db',required=True);r.add_argument('--out',required=True)
     v=sub.add_parser('verify');v.add_argument('--db',required=True);v.add_argument('--sandbox');v.add_argument('--out')
@@ -23,6 +25,12 @@ def main():
         initialize(db,fixture/'config.json');load(db,fixture/'events.jsonl');print(evaluate(db));print(export(db,work/'report.json'))
     elif a.command=='init':print(initialize(a.db,a.config))
     elif a.command=='load':print(load(a.db,a.path))
+    elif a.command=='cohort-snapshot':
+        from .cohort import record_snapshot
+        print(record_snapshot(a.db,a.path))
+    elif a.command=='cohort-corrections':
+        from .cohort import record_corrections
+        print(record_corrections(a.db,a.path))
     elif a.command=='evaluate':print(evaluate(a.db))
     elif a.command=='report':print(export(a.db,a.out))
     elif a.command=='verify':
