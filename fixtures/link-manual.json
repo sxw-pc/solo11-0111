@@ -1,0 +1,9 @@
+{
+  "plan_id": "link-manual-1",
+  "manifest_id": "link-S1",
+  "pairs": [
+    {"left": "a1", "right": "b1"},
+    {"left": "a2", "right": "b2"},
+    {"left": "a3", "right": "b3"}
+  ]
+}

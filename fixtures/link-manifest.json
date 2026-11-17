@@ -1,0 +1,23 @@
+{
+  "manifest_id": "link-S1",
+  "batch_id": "link-demo",
+  "dataset_version": "d2",
+  "left_provider": "A",
+  "right_provider": "B",
+  "left_ids": ["a1", "a2", "a3"],
+  "right_ids": ["b1", "b2", "b3"],
+  "edges": [
+    {"left": "a1", "right": "b1", "claims": [
+      {"id": "c11a", "source": "matcher-A", "score": 10}, {"id": "c11b", "source": "matcher-B", "score": 10}]},
+    {"left": "a2", "right": "b2", "claims": [
+      {"id": "c22a", "source": "matcher-A", "score": 10}, {"id": "c22b", "source": "matcher-B", "score": 10}]},
+    {"left": "a3", "right": "b3", "claims": [
+      {"id": "c33a", "source": "matcher-A", "score": 5}, {"id": "c33b", "source": "matcher-B", "score": 5}]},
+    {"left": "a1", "right": "b2", "claims": [
+      {"id": "c12a", "source": "matcher-A", "score": 8}, {"id": "c12b", "source": "matcher-B", "score": 8}]},
+    {"left": "a2", "right": "b3", "claims": [
+      {"id": "c23a", "source": "matcher-A", "score": 8}, {"id": "c23b", "source": "matcher-B", "score": 8}]},
+    {"left": "a3", "right": "b1", "claims": [
+      {"id": "c31a", "source": "matcher-A", "score": 8}, {"id": "c31b", "source": "matcher-B", "score": 8}]}
+  ]
+}
