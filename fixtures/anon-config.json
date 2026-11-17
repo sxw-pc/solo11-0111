@@ -1,0 +1,6 @@
+{
+  "batch_id": "anon-demo",
+  "rule_version": "anon-v1",
+  "dataset": {"version": "d2", "fields": ["age", "zip", "condition"]},
+  "subjects": {}
+}

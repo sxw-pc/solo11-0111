@@ -1,0 +1,31 @@
+{
+  "source_id": "micro-S1",
+  "batch_id": "anon-demo",
+  "dataset_version": "d2",
+  "quasi_identifiers": ["age", "zip"],
+  "sensitive_field": "condition",
+  "hierarchies": {
+    "age": {
+      "ancestors": {
+        "20": ["20", "20s", "*"], "21": ["21", "20s", "*"],
+        "30": ["30", "30s", "*"], "31": ["31", "30s", "*"]
+      },
+      "costs": {"20": 0, "21": 0, "30": 0, "31": 0, "20s": 1, "30s": 1, "*": 10}
+    },
+    "zip": {
+      "ancestors": {
+        "100": ["100", "10*", "*"], "101": ["101", "10*", "*"],
+        "200": ["200", "20*", "*"]
+      },
+      "costs": {"100": 0, "101": 0, "200": 0, "10*": 3, "20*": 3, "*": 10}
+    }
+  },
+  "rows": [
+    {"id": "r1", "age": 20, "zip": 100, "condition": "A"},
+    {"id": "r2", "age": 21, "zip": 100, "condition": "A"},
+    {"id": "r3", "age": 20, "zip": 101, "condition": "B"},
+    {"id": "r4", "age": 21, "zip": 101, "condition": "B"},
+    {"id": "r5", "age": 30, "zip": 200, "condition": "A"},
+    {"id": "r6", "age": 31, "zip": 200, "condition": "B"}
+  ]
+}

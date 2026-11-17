@@ -1,5 +1,7 @@
 # 用途授权判定台
 
+合成微观表匿名化有独立采集/人工方案评估入口：先以 `python -m purposegate init --db ledger.db --config fixtures/anon-config.json` 初始化合成数据集，再以 `python -m purposegate anon-record --db ledger.db --input fixtures/anon-source.json` 冻结表和泛化层级，最后以 `python -m purposegate anon-manual --db ledger.db --input fixtures/anon-manual.json` 评估已选行分组的 k 值、敏感值多样性与信息损失。当前 `purposegate/anonymize.py` 不寻找最优分组，也不发布真实个人数据。
+
 完全离线，输入与主体均为合成数据。`python -m pip install . --no-build-isolation` 安装；`python -m purposegate demo` 一条命令初始化 SQLite、导入 fixture、计算、生成 JSON/Markdown；`python -m pytest -q` 测试。
 
 数据流：SourceFile 原始字节及哈希 → RawEvent → Subject 与 RuleVersion → Run 内的 Decision、Evidence、Issue → 报告；身份冲突和坏行保留为 Issue。相同文件哈希与事件键幂等。

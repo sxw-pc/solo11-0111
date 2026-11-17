@@ -1,0 +1,7 @@
+{
+  "plan_id": "anon-manual-1",
+  "source_id": "micro-S1",
+  "k": 2,
+  "l_distinct": 1,
+  "groups": [["r1", "r2"], ["r3", "r4"], ["r5", "r6"]]
+}
