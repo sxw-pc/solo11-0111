@@ -1,0 +1,16 @@
+{
+  "forecast_id": "forecast-S1",
+  "batch_id": "poll-demo",
+  "rule_version": "poll-v1",
+  "slots": ["T1", "T2", "T3", "T4", "T5", "T6"],
+  "total_poll_budget": 2,
+  "max_polls_per_slot": 1,
+  "feeds": [
+    {"id": "consent-feed", "weight": 1,
+     "change_probability": [
+       {"num": 9, "den": 10}, {"num": 1, "den": 10},
+       {"num": 1, "den": 10}, {"num": 1, "den": 10},
+       {"num": 1, "den": 10}, {"num": 1, "den": 10}
+     ]}
+  ]
+}

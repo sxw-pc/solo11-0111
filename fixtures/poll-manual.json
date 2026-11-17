@@ -1,0 +1,5 @@
+{
+  "plan_id": "poll-manual-1",
+  "forecast_id": "forecast-S1",
+  "polls": [[], [], ["consent-feed"], [], [], ["consent-feed"]]
+}

@@ -1,5 +1,7 @@
 # 用途授权判定台
 
+合成授权来源的采集轮询台账可用 `poll-forecast` 冻结逐槽更新概率、预算与来源，再用 `poll-manual` 评估人工时序的期望陈旧槽数、最长未轮询间隔和封账轮询是否可行；不访问网络。示例：`python -m purposegate init --db ledger.db --config fixtures/poll-config.json`，然后 `python -m purposegate poll-forecast --db ledger.db --input fixtures/poll-forecast.json`，最后 `python -m purposegate poll-manual --db ledger.db --input fixtures/poll-manual.json`。当前 `purposegate/polling.py` 不寻找最优轮询计划。
+
 完全离线，输入与主体均为合成数据。`python -m pip install . --no-build-isolation` 安装；`python -m purposegate demo` 一条命令初始化 SQLite、导入 fixture、计算、生成 JSON/Markdown；`python -m pytest -q` 测试。
 
 数据流：SourceFile 原始字节及哈希 → RawEvent → Subject 与 RuleVersion → Run 内的 Decision、Evidence、Issue → 报告；身份冲突和坏行保留为 Issue。相同文件哈希与事件键幂等。
