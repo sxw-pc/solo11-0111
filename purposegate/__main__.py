@@ -15,6 +15,9 @@ def main():
         x=sub.add_parser(name);x.add_argument('--db',required=True);x.add_argument('--sandbox');x.add_argument('--out')
     dp=sub.add_parser('delivery-prepare');dp.add_argument('--db',required=True);dp.add_argument('--id',required=True);dp.add_argument('--request',required=True);dp.add_argument('--values',required=True)
     dr=sub.add_parser('delivery-release');dr.add_argument('--db',required=True);dr.add_argument('--id',required=True);dr.add_argument('--values',required=True);dr.add_argument('--out',required=True)
+    dr.add_argument('--fault-at',choices=['prepare','temp','commit','rename','confirm'])
+    drec=sub.add_parser('delivery-recover');drec.add_argument('--db',required=True);drec.add_argument('--id',required=True);drec.add_argument('--route',required=True,choices=['promote_verified','require_reapproval'])
+    drec.add_argument('--fault-at',choices=['prepare','temp','commit','rename','confirm'])
     ur=sub.add_parser('usage-record');ur.add_argument('--db',required=True);ur.add_argument('--events',required=True)
     ua=sub.add_parser('usage-audit');ua.add_argument('--db',required=True);ua.add_argument('--id',required=True)
     a=p.parse_args()
@@ -42,8 +45,26 @@ def main():
         print(prepare(a.db,a.id,a.request,json.loads(Path(a.values).read_text(encoding='utf-8'))))
     elif a.command=='delivery-release':
         import json
-        from .delivery import release
-        print(release(a.db,a.id,json.loads(Path(a.values).read_text(encoding='utf-8')),a.out))
+        from . import delivery
+        def fault(window):
+            if window==a.fault_at:raise delivery.InjectedCrash(window)
+        delivery.FAULT_HOOK=fault if a.fault_at else None
+        try:
+            result=delivery.release(a.db,a.id,json.loads(Path(a.values).read_text(encoding='utf-8')),a.out)
+        finally:
+            delivery.FAULT_HOOK=None
+        print(json.dumps(result,ensure_ascii=False,sort_keys=True))
+    elif a.command=='delivery-recover':
+        import json
+        from . import delivery
+        def fault(window):
+            if window==a.fault_at:raise delivery.InjectedCrash(window)
+        delivery.FAULT_HOOK=fault if a.fault_at else None
+        try:
+            result=delivery.recover(a.db,a.id,a.route)
+        finally:
+            delivery.FAULT_HOOK=None
+        print(json.dumps(result,ensure_ascii=False,sort_keys=True))
     elif a.command=='usage-record':
         import json
         from .usage import record

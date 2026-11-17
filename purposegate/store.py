@@ -17,3 +17,21 @@ CREATE TABLE IF NOT EXISTS plan(id INTEGER PRIMARY KEY, run_id INTEGER NOT NULL 
 def connect(path):
     path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
     db=sqlite3.connect(path);db.row_factory=sqlite3.Row;db.executescript(SCHEMA);return db
+
+
+def columns(db,table):
+    """Column names of an existing table (empty for a missing table)."""
+    return {row['name'] for row in db.execute(f'PRAGMA table_info({table})')}
+
+
+def add_columns(db,table,definitions):
+    """Small forward migration: add missing columns without touching data.
+
+    ``definitions`` is an iterable of ``(name, sql_type)`` pairs.  Existing
+    columns (and therefore existing rows, indexes and CHECK constraints) are
+    left exactly as they are.
+    """
+    present=columns(db,table)
+    for name,sql_type in definitions:
+        if name not in present:
+            db.execute(f'ALTER TABLE {table} ADD COLUMN {name} {sql_type}')

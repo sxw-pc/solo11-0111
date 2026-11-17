@@ -1,9 +1,7 @@
 """Post-delivery use audit over a frozen package and evolving grants."""
-import hashlib
 import json
-from pathlib import Path
 
-from .delivery import SCHEMA as DELIVERY_SCHEMA, _canonical, _digest
+from .delivery import SCHEMA as DELIVERY_SCHEMA, _digest, ensure_schema, verify_delivered
 from .rules import _allowed_purpose, _ancestors
 from .store import connect
 from .timeline import active_grant, instant
@@ -21,7 +19,7 @@ CREATE TABLE IF NOT EXISTS usage_run(
 """
 
 def record(db_path, records):
-    db=connect(db_path);db.executescript(DELIVERY_SCHEMA+SCHEMA)
+    db=connect(db_path);db.executescript(DELIVERY_SCHEMA+SCHEMA);ensure_schema(db)
     with db:
         for row in records:
             for key in ('event_key','package_id','person','field','purpose','at'):
@@ -35,29 +33,26 @@ def record(db_path, records):
     db.close();return len(records)
 
 def audit(db_path, package_id):
-    db=connect(db_path);db.executescript(DELIVERY_SCHEMA+SCHEMA)
+    db=connect(db_path);db.executescript(DELIVERY_SCHEMA+SCHEMA);ensure_schema(db)
     package=db.execute('SELECT * FROM delivery_package WHERE id=?',(package_id,)).fetchone()
-    if not package:raise ValueError('unknown_delivery')
+    if not package:db.close();raise ValueError('unknown_delivery')
     config=json.loads(db.execute('SELECT config_raw FROM batch LIMIT 1').fetchone()[0])
     spec=config['subjects'][package['request_id']]
     authorized=set(json.loads(package['fields_json']))
     source=[json.loads(r['payload']) for r in db.execute('SELECT payload FROM raw_event ORDER BY at,id')]
     result=[]
-    output=Path(package['output_path']) if package['output_path'] else None
-    package_ok=False
-    if output and output.exists():
-        try:
-            payload=json.loads(output.read_text(encoding='utf-8'))
-            package_ok=(payload['manifest_hash']==package['manifest_hash']
-                        and _digest(payload['fields'])==package['values_hash'])
-        except (KeyError,ValueError,UnicodeError): pass
+    # A ledger state string is not proof of delivery.  The frozen release row
+    # and the destination bytes must both still recompute to the package hashes.
+    package_ok,package_reason=verify_delivered(db,package)
     with db:
         audit_run=db.execute('INSERT INTO usage_run(package_id,status) VALUES (?,?)',(package_id,'running')).lastrowid
         for r in db.execute('SELECT * FROM usage_event WHERE package_id=? ORDER BY event_key',(package_id,)):
             event=json.loads(r['payload']);person=event['person'];field=event['field'];purpose=event['purpose'];when=event['at']
             status='compliant';reason='authorized_at_use'
-            if package['state']!='released' or not package_ok:
-                status='uncertain';reason='delivery_evidence_missing'
+            if not package_ok:
+                # Missing, unconfirmed, reapproval-quarantined or digest-mismatched
+                # output never reaches the authorization-time check.
+                status='uncertain';reason=f'delivery_evidence_missing:{package_reason}'
             elif person not in spec['persons'] or field not in authorized:
                 status='violation';reason='person_or_field_outside_package'
             else:
