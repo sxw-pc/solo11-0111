@@ -1,0 +1,14 @@
+{
+  "audit_id": "audit-S1",
+  "batch_id": "group-audit-demo",
+  "rule_version": "audit-v1",
+  "definition": "synthetic offline aggregate of authorization decisions; groups and strata are project-local labels",
+  "groups": ["A", "B"],
+  "strata": ["easy", "hard"],
+  "cells": [
+    {"group": "A", "stratum": "easy", "allowed": 81, "denied": 9},
+    {"group": "B", "stratum": "easy", "allowed": 9, "denied": 1},
+    {"group": "A", "stratum": "hard", "allowed": 1, "denied": 9},
+    {"group": "B", "stratum": "hard", "allowed": 9, "denied": 81}
+  ]
+}

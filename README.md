@@ -1,5 +1,7 @@
 # 用途授权判定台
 
+合成授权决定的群体审计台账可用 `group-audit-record` 冻结分层计数，并由 `group-audit-raw` 输出两组未经分层调整的允许率及差值。示例：`python -m purposegate init --db ledger.db --config fixtures/group-audit-config.json`，再运行 `python -m purposegate group-audit-record --db ledger.db --input fixtures/group-audit-matrix.json`，最后运行 `python -m purposegate group-audit-raw --db ledger.db --id audit-S1`。`purposegate/group_audit.py` 不改变任何人的许可，不作共同参考人口标准化或分层精确检验。
+
 完全离线，输入与主体均为合成数据。`python -m pip install . --no-build-isolation` 安装；`python -m purposegate demo` 一条命令初始化 SQLite、导入 fixture、计算、生成 JSON/Markdown；`python -m pytest -q` 测试。
 
 数据流：SourceFile 原始字节及哈希 → RawEvent → Subject 与 RuleVersion → Run 内的 Decision、Evidence、Issue → 报告；身份冲突和坏行保留为 Issue。相同文件哈希与事件键幂等。

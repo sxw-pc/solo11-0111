@@ -1,0 +1,6 @@
+{
+  "batch_id": "group-audit-demo",
+  "rule_version": "audit-v1",
+  "dataset": {"version": "d1", "fields": ["decision_status"]},
+  "subjects": {}
+}
