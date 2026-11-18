@@ -9,6 +9,8 @@ def main():
     i=sub.add_parser('init');i.add_argument('--db',required=True);i.add_argument('--config',required=True)
     sf=sub.add_parser('sample-frame');sf.add_argument('--db',required=True);sf.add_argument('--input',required=True)
     sm=sub.add_parser('sample-manual');sm.add_argument('--db',required=True);sm.add_argument('--input',required=True)
+    so=sub.add_parser('sample-optimize');so.add_argument('--db',required=True);so.add_argument('--input',required=True)
+    sv=sub.add_parser('sample-verify');sv.add_argument('--db',required=True);sv.add_argument('--id',required=True)
     l=sub.add_parser('load');l.add_argument('--db',required=True);l.add_argument('path')
     e=sub.add_parser('evaluate');e.add_argument('--db',required=True)
     r=sub.add_parser('report');r.add_argument('--db',required=True);r.add_argument('--out',required=True)
@@ -23,6 +25,15 @@ def main():
     if a.command=='demo':
         work=Path(a.workdir or tempfile.mkdtemp(prefix='evidence-'));work.mkdir(parents=True,exist_ok=True);db=work/'ledger.db';fixture=Path(__file__).resolve().parent.parent/'fixtures'
         initialize(db,fixture/'config.json');load(db,fixture/'events.jsonl');print(evaluate(db));print(export(db,work/'report.json'))
+        import json
+        from .sampling import record_frame,evaluate_manual,optimize_plan,verify_plan,format_plan_markdown
+        sdb=work/'sampling.db';initialize(sdb,fixture/'sample-config.json')
+        record_frame(sdb,fixture/'sample-frame.json');print(evaluate_manual(sdb,fixture/'sample-manual.json'))
+        plans=[optimize_plan(sdb,fixture/'sample-optimize-variance.json'),optimize_plan(sdb,fixture/'sample-optimize-coverage.json')]
+        record_frame(sdb,fixture/'sample-frame-greedy.json');plans.append(optimize_plan(sdb,fixture/'sample-optimize-greedy.json'))
+        for plan in plans:print(verify_plan(sdb,plan['plan_id']))
+        out=work/'sampling.json';out.write_text(json.dumps(plans,ensure_ascii=False,indent=2),encoding='utf-8')
+        out.with_suffix('.md').write_text('\n\n'.join(format_plan_markdown(p) for p in plans),encoding='utf-8');print(out)
     elif a.command=='init':print(initialize(a.db,a.config))
     elif a.command=='sample-frame':
         from .sampling import record_frame
@@ -30,6 +41,12 @@ def main():
     elif a.command=='sample-manual':
         from .sampling import evaluate_manual
         print(evaluate_manual(a.db,a.input))
+    elif a.command=='sample-optimize':
+        from .sampling import optimize_plan
+        print(optimize_plan(a.db,a.input))
+    elif a.command=='sample-verify':
+        from .sampling import verify_plan
+        print(verify_plan(a.db,a.id))
     elif a.command=='load':print(load(a.db,a.path))
     elif a.command=='evaluate':print(evaluate(a.db))
     elif a.command=='report':print(export(a.db,a.out))

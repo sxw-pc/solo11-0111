@@ -1,0 +1,5 @@
+{
+  "plan_id": "sample-opt-variance-1",
+  "frame_id": "frame-S1",
+  "objective": "min_design_variance"
+}

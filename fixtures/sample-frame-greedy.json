@@ -1,0 +1,24 @@
+{
+  "frame_id": "frame-anti-greedy",
+  "batch_id": "sample-demo",
+  "dataset_version": "d2",
+  "value_field": "score",
+  "priority_seed": "anti-greedy-fixed-seed",
+  "budget": 13,
+  "strata": [
+    {"id": "G1", "cost_per_row": 1, "pilot_variance_num": 1, "pilot_variance_den": 1},
+    {"id": "G2", "cost_per_row": 1, "pilot_variance_num": 1, "pilot_variance_den": 1},
+    {"id": "G3", "cost_per_row": 4, "pilot_variance_num": 1, "pilot_variance_den": 1}
+  ],
+  "rows": [
+    {"id": "G1-1", "stratum": "G1"}, {"id": "G1-2", "stratum": "G1"},
+    {"id": "G1-3", "stratum": "G1"}, {"id": "G1-4", "stratum": "G1"},
+    {"id": "G1-5", "stratum": "G1"},
+    {"id": "G2-1", "stratum": "G2"}, {"id": "G2-2", "stratum": "G2"},
+    {"id": "G2-3", "stratum": "G2"}, {"id": "G2-4", "stratum": "G2"},
+    {"id": "G2-5", "stratum": "G2"},
+    {"id": "G3-1", "stratum": "G3"}, {"id": "G3-2", "stratum": "G3"},
+    {"id": "G3-3", "stratum": "G3"}, {"id": "G3-4", "stratum": "G3"},
+    {"id": "G3-5", "stratum": "G3"}
+  ]
+}

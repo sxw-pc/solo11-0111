@@ -2,6 +2,12 @@
 
 合成数据产品的分层抽样框可用 `sample-frame` 冻结层、行 ID、预算与先导方差；`sample-manual` 会评估一份人工配额的有限总体方差、层覆盖差、确定样本名单与入样概率，尚不寻找最优配额。示例：`python -m purposegate init --db ledger.db --config fixtures/sample-config.json`，再运行 `python -m purposegate sample-frame --db ledger.db --input fixtures/sample-frame.json` 和 `python -m purposegate sample-manual --db ledger.db --input fixtures/sample-manual.json`。
 
+## 分层抽样优化与独立核验
+
+`sample-optimize --db ledger.db --input fixtures/sample-optimize-variance.json` 在冻结抽样框上按冻结合同选择每层整数抽样数 n_h（1≤n_h≤N_h，总成本≤预算）：`min_design_variance` 最小化总体均值先导设计方差 `Σ (N_h/N)²·S_h²·(1−n_h/N_h)/n_h`，平局先减小层覆盖率极差再按层 ID 字典序；`min_coverage_gap` 最小化层覆盖率极差，平局先最大化总抽样行数再最小化先导设计方差及字典序。全部比较用精确有理数，合同在优化前按原文字节 SHA 冻结。方差目标用预算精确 DP 认证最优值、平局搜索只访问 DP 认证的配额；覆盖率目标用入样率窗口精确扫描。步数预算耗尽时报 `indeterminate` 并给出已证明的上下界，不输出伪最优名单。选定配额后按确定优先序（seed+NUL+行 ID 的 SHA-256）抽出真实行 ID；报告的 n/N 是冻结设计在均匀优先序模型下的事前入样率，固定种子只用于重现这一次名单，已冻结名单事后不再具有随机性。相同请求重放幂等，同 plan ID 异文拒绝；新 frame 只能生成新计划，旧名单与来源不回写。
+
+`sample-verify --db ledger.db --id sample-opt-variance-1` 从冻结 frame 原文、冻结合同和优先序独立重算配额可行性、精确最优目标、名单、入样率与指标，识别伪造更优值、重用行 ID、错用成本或被替换的种子。反贪心 fixture：`fixtures/sample-frame-greedy.json`（三层 N=5、先导方差各 1、成本 1/1/4、预算 13）上逐次边际贪心得 [4,5,1]/[5,4,1] 方差 17/180，而 `fixtures/sample-optimize-greedy.json` 证明全局最优 [2,3,2] 方差 11/135。
+
 完全离线，输入与主体均为合成数据。`python -m pip install . --no-build-isolation` 安装；`python -m purposegate demo` 一条命令初始化 SQLite、导入 fixture、计算、生成 JSON/Markdown；`python -m pytest -q` 测试。
 
 数据流：SourceFile 原始字节及哈希 → RawEvent → Subject 与 RuleVersion → Run 内的 Decision、Evidence、Issue → 报告；身份冲突和坏行保留为 Issue。相同文件哈希与事件键幂等。

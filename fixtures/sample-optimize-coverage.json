@@ -1,0 +1,5 @@
+{
+  "plan_id": "sample-opt-coverage-1",
+  "frame_id": "frame-S1",
+  "objective": "min_coverage_gap"
+}
