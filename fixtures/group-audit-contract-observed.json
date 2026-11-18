@@ -1,0 +1,7 @@
+{
+  "contract_id": "contract-S1-observed-mix",
+  "audit_id": "audit-S1",
+  "estimand": "observed_mix",
+  "definition": "overall allow rates weighted by each group's own stratum mix in this frozen source; chosen before any conclusion is drawn",
+  "thresholds": {"min_gap": [1, 5], "max_p": [1, 20]}
+}

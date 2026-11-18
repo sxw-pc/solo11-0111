@@ -9,6 +9,8 @@ def main():
     i=sub.add_parser('init');i.add_argument('--db',required=True);i.add_argument('--config',required=True)
     ga=sub.add_parser('group-audit-record');ga.add_argument('--db',required=True);ga.add_argument('--input',required=True)
     gr=sub.add_parser('group-audit-raw');gr.add_argument('--db',required=True);gr.add_argument('--id',required=True)
+    gd=sub.add_parser('group-audit-decide');gd.add_argument('--db',required=True);gd.add_argument('--contract',required=True)
+    gv=sub.add_parser('group-audit-verify');gv.add_argument('--db',required=True);gv.add_argument('--id')
     l=sub.add_parser('load');l.add_argument('--db',required=True);l.add_argument('path')
     e=sub.add_parser('evaluate');e.add_argument('--db',required=True)
     r=sub.add_parser('report');r.add_argument('--db',required=True);r.add_argument('--out',required=True)
@@ -23,6 +25,14 @@ def main():
     if a.command=='demo':
         work=Path(a.workdir or tempfile.mkdtemp(prefix='evidence-'));work.mkdir(parents=True,exist_ok=True);db=work/'ledger.db';fixture=Path(__file__).resolve().parent.parent/'fixtures'
         initialize(db,fixture/'config.json');load(db,fixture/'events.jsonl');print(evaluate(db));print(export(db,work/'report.json'))
+        from . import group_audit
+        gdb=work/'group-audit.db'
+        initialize(gdb,fixture/'group-audit-config.json')
+        group_audit.record(gdb,fixture/'group-audit-matrix.json')
+        print(group_audit.raw_summary(gdb,'audit-S1'))
+        print(group_audit.decide(gdb,fixture/'group-audit-contract-observed.json')['trigger'])
+        print(group_audit.decide(gdb,fixture/'group-audit-contract-common.json')['trigger'])
+        print(group_audit.verify(gdb))
     elif a.command=='init':print(initialize(a.db,a.config))
     elif a.command=='group-audit-record':
         from .group_audit import record
@@ -30,6 +40,12 @@ def main():
     elif a.command=='group-audit-raw':
         from .group_audit import raw_summary
         print(raw_summary(a.db,a.id))
+    elif a.command=='group-audit-decide':
+        from .group_audit import decide
+        print(decide(a.db,a.contract))
+    elif a.command=='group-audit-verify':
+        from . import group_audit
+        print(group_audit.verify(a.db,a.id))
     elif a.command=='load':print(load(a.db,a.path))
     elif a.command=='evaluate':print(evaluate(a.db))
     elif a.command=='report':print(export(a.db,a.out))

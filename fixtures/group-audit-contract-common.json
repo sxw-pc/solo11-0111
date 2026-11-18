@@ -1,0 +1,8 @@
+{
+  "contract_id": "contract-S1-common-reference",
+  "audit_id": "audit-S1",
+  "estimand": "common_reference",
+  "definition": "per-stratum allow rates of both groups weighted by the contract's common stratum weights; chosen before any conclusion is drawn",
+  "weights": {"easy": [1, 2], "hard": [1, 2]},
+  "thresholds": {"min_gap": [1, 5], "max_p": [1, 20]}
+}
