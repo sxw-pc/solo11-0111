@@ -1,8 +1,14 @@
 # 用途授权判定台
 
-合成微观表匿名化有独立采集/人工方案评估入口：先以 `python -m purposegate init --db ledger.db --config fixtures/anon-config.json` 初始化合成数据集，再以 `python -m purposegate anon-record --db ledger.db --input fixtures/anon-source.json` 冻结表和泛化层级，最后以 `python -m purposegate anon-manual --db ledger.db --input fixtures/anon-manual.json` 评估已选行分组的 k 值、敏感值多样性与信息损失。当前 `purposegate/anonymize.py` 不寻找最优分组，也不发布真实个人数据。
+合成微观表匿名化有独立采集/人工方案评估入口：先以 `python -m purposegate init --db ledger.db --config fixtures/anon-config.json` 初始化合成数据集，再以 `python -m purposegate anon-record --db ledger.db --input fixtures/anon-source.json` 冻结表和泛化层级，最后以 `python -m purposegate anon-manual --db ledger.db --input fixtures/anon-manual.json` 评估已选行分组的 k 值、敏感值多样性与信息损失。人工入口仍只评估调用者给出的分组，不搜索最优分组，也不发布真实个人数据。
 
-完全离线，输入与主体均为合成数据。`python -m pip install . --no-build-isolation` 安装；`python -m purposegate demo` 一条命令初始化 SQLite、导入 fixture、计算、生成 JSON/Markdown；`python -m pytest -q` 测试。
+## 精确最优匿名化（anon-optimize / anon-verify）
+
+`python -m purposegate anon-optimize --db ledger.db --input fixtures/anon-opt-l1.json` 对冻结来源求**可证明最小信息损失**的合规变换。求解器（`purposegate/anon_optimize.py`）在有限行子集上枚举满足 k/l 的候选等价类，再以子集动态规划精确覆盖全部行：允许局部泛化（同一列在不同类可取不同层级），每个源行恰好进入一个类，信息损失为每行各列泛化节点成本之和；同分按冻结行 ID、字段与节点稳定破同。两个内部组若发布相同准标识符元组，按全表实际相等元组合并后再检查 k 与敏感值多样性，不以组 ID 伪装成两个等价类。预算耗尽时返回 `indeterminate` 与已证明的上下界，绝不冒称最优；不存在合规分区时返回 `infeasible`。
+
+持久化结果包含内部 `row_id→发布行` 审计映射（`anon_opt_row` 表）、不含直接 row_id 的实际匿名化行表（保留合成敏感值以便验证多样性）、每个等价类的行数与敏感值种类、逐列损失分解，以及合同和来源字节摘要。`anon-verify --db ledger.db --id <plan_id>` 不信任任何已存结果，从冻结来源与合同独立重算发布表、类大小/多样性、损失与最优目标，可识别伪造泛化节点、偷删行、重复等价类 ID、审计表篡改和次优分组。相同 plan_id 异文请求报 `anon_plan_conflict`，相同来源/合同重放返回同一结果，旧计划不会被新来源静默改写。`fixtures/anon-opt-l1.json` 与 `fixtures/anon-opt-l2.json` 是同一来源下两份事先批准合同（l_distinct 分别为 1、2），最优损失分别为 6 与 14，发布行表实际不同；`anon-source-12.json` 是 12 行三列有限层级的有界运行用例。
+
+完全离线，输入与主体均为合成数据。`python -m pip install . --no-build-isolation` 安装；`python -m purposegate demo` 一条命令初始化 SQLite、导入 fixture、计算、生成 JSON/Markdown，并演示两份合同的最优变换与独立 verify；`python -m pytest -q` 测试。
 
 数据流：SourceFile 原始字节及哈希 → RawEvent → Subject 与 RuleVersion → Run 内的 Decision、Evidence、Issue → 报告；身份冲突和坏行保留为 Issue。相同文件哈希与事件键幂等。
 

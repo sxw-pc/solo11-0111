@@ -1,0 +1,49 @@
+{
+  "source_id": "micro-S2",
+  "batch_id": "anon-demo-12",
+  "dataset_version": "d3",
+  "quasi_identifiers": ["age", "zip", "city"],
+  "sensitive_field": "condition",
+  "hierarchies": {
+    "age": {
+      "ancestors": {
+        "20": ["20", "20s", "*"], "21": ["21", "20s", "*"],
+        "30": ["30", "30s", "*"], "31": ["31", "30s", "*"],
+        "40": ["40", "40s", "*"], "41": ["41", "40s", "*"]
+      },
+      "costs": {"20": 0, "21": 0, "30": 0, "31": 0, "40": 0, "41": 0,
+                "20s": 1, "30s": 1, "40s": 1, "*": 10}
+    },
+    "zip": {
+      "ancestors": {
+        "100": ["100", "10*", "*"], "101": ["101", "10*", "*"],
+        "200": ["200", "20*", "*"], "201": ["201", "20*", "*"],
+        "300": ["300", "30*", "*"], "301": ["301", "30*", "*"]
+      },
+      "costs": {"100": 0, "101": 0, "200": 0, "201": 0, "300": 0, "301": 0,
+                "10*": 3, "20*": 3, "30*": 3, "*": 10}
+    },
+    "city": {
+      "ancestors": {
+        "NYC": ["NYC", "metroN", "*"], "BKN": ["BKN", "metroN", "*"],
+        "LA": ["LA", "metroW", "*"], "SD": ["SD", "metroW", "*"]
+      },
+      "costs": {"NYC": 0, "BKN": 0, "LA": 0, "SD": 0,
+                "metroN": 2, "metroW": 2, "*": 10}
+    }
+  },
+  "rows": [
+    {"id": "r1",  "age": 20, "zip": 100, "city": "NYC", "condition": "A"},
+    {"id": "r2",  "age": 21, "zip": 101, "city": "BKN", "condition": "A"},
+    {"id": "r3",  "age": 20, "zip": 100, "city": "NYC", "condition": "B"},
+    {"id": "r4",  "age": 21, "zip": 101, "city": "BKN", "condition": "B"},
+    {"id": "r5",  "age": 30, "zip": 200, "city": "LA",  "condition": "A"},
+    {"id": "r6",  "age": 31, "zip": 201, "city": "SD",  "condition": "B"},
+    {"id": "r7",  "age": 30, "zip": 200, "city": "LA",  "condition": "A"},
+    {"id": "r8",  "age": 31, "zip": 201, "city": "SD",  "condition": "B"},
+    {"id": "r9",  "age": 40, "zip": 300, "city": "NYC", "condition": "A"},
+    {"id": "r10", "age": 41, "zip": 301, "city": "BKN", "condition": "B"},
+    {"id": "r11", "age": 40, "zip": 300, "city": "NYC", "condition": "B"},
+    {"id": "r12", "age": 41, "zip": 301, "city": "BKN", "condition": "A"}
+  ]
+}
