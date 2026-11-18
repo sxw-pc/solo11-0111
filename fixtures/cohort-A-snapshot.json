@@ -1,0 +1,10 @@
+{
+  "cohort_id": "cohort-A",
+  "dataset_version": "d1",
+  "effective_date": "2026-01-01",
+  "metric_contract": {"mean": "arithmetic_score", "rank": "descending_score_dense_ties"},
+  "members": [
+    {"person": "p1", "score": "60.00"},
+    {"person": "p2", "score": "80.00"}
+  ]
+}

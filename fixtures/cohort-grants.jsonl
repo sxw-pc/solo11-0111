@@ -1,0 +1,3 @@
+{"event_key": "cg-p1", "subject": "req-cohort", "kind": "grant", "person": "p1", "purpose": "research", "fields": ["score", "score_band"], "from": "2026-01-01", "until": "2027-01-01", "at": "2026-01-01"}
+{"event_key": "cg-p2", "subject": "req-cohort", "kind": "grant", "person": "p2", "purpose": "research", "fields": ["score"], "from": "2026-01-01", "until": "2027-01-01", "at": "2026-01-01"}
+{"event_key": "cg-p2-only", "subject": "req-p2-only", "kind": "grant", "person": "p2", "purpose": "research", "fields": ["score"], "from": "2026-01-01", "until": "2027-01-01", "at": "2026-01-01"}

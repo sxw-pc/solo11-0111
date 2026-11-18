@@ -1,0 +1,31 @@
+{
+  "batch_id": "cohort-demo",
+  "rule_version": "v1",
+  "dataset": {
+    "version": "d1",
+    "fields": ["name", "score", "score_band"]
+  },
+  "purpose_tree": {"analytics": "research", "research": null},
+  "purpose_roots": ["research"],
+  "lineage": {"score_band": ["score"]},
+  "subjects": {
+    "req-cohort": {
+      "version": "d1",
+      "persons": ["p2"],
+      "cohort": "cohort-A",
+      "purpose": "analytics",
+      "fields": ["cohort_rank"],
+      "required": [],
+      "at": "2026-07-01T00:00:00Z"
+    },
+    "req-p2-only": {
+      "version": "d1",
+      "persons": ["p2"],
+      "cohort": "cohort-A",
+      "purpose": "analytics",
+      "fields": ["cohort_rank"],
+      "required": [],
+      "at": "2026-07-01T00:00:00Z"
+    }
+  }
+}

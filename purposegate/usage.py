@@ -1,9 +1,8 @@
 """Post-delivery use audit over a frozen package and evolving grants."""
-import hashlib
 import json
 from pathlib import Path
 
-from .delivery import SCHEMA as DELIVERY_SCHEMA, _canonical, _digest
+from .delivery import SCHEMA as DELIVERY_SCHEMA, _digest
 from .rules import _allowed_purpose, _ancestors
 from .store import connect
 from .timeline import active_grant, instant
