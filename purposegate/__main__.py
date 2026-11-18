@@ -9,6 +9,8 @@ def main():
     i=sub.add_parser('init');i.add_argument('--db',required=True);i.add_argument('--config',required=True)
     lr=sub.add_parser('link-record');lr.add_argument('--db',required=True);lr.add_argument('--input',required=True)
     lm=sub.add_parser('link-manual');lm.add_argument('--db',required=True);lm.add_argument('--input',required=True)
+    ld=sub.add_parser('link-decide');ld.add_argument('--db',required=True);ld.add_argument('--input',required=True)
+    lv=sub.add_parser('link-verify');lv.add_argument('--db',required=True);lv.add_argument('--id',required=True)
     l=sub.add_parser('load');l.add_argument('--db',required=True);l.add_argument('path')
     e=sub.add_parser('evaluate');e.add_argument('--db',required=True)
     r=sub.add_parser('report');r.add_argument('--db',required=True);r.add_argument('--out',required=True)
@@ -23,6 +25,11 @@ def main():
     if a.command=='demo':
         work=Path(a.workdir or tempfile.mkdtemp(prefix='evidence-'));work.mkdir(parents=True,exist_ok=True);db=work/'ledger.db';fixture=Path(__file__).resolve().parent.parent/'fixtures'
         initialize(db,fixture/'config.json');load(db,fixture/'events.jsonl');print(evaluate(db));print(export(db,work/'report.json'))
+        from . import matching
+        linkdb=work/'link-ledger.db';initialize(linkdb,fixture/'link-config.json');matching.record(linkdb,fixture/'link-manifest.json')
+        for plan_name in ('link-decide-total.json','link-decide-min.json'):
+            cert=matching.decide(linkdb,fixture/plan_name)
+            print(cert['contract'],[(e['left'],e['right']) for e in cert['canonical_entities']],cert['total_score'],cert['minimum_score'],matching.verify_certificate(linkdb,cert['certificate_id'])['ok'])
     elif a.command=='init':print(initialize(a.db,a.config))
     elif a.command=='link-record':
         from .matching import record
@@ -30,6 +37,12 @@ def main():
     elif a.command=='link-manual':
         from .matching import evaluate_manual
         print(evaluate_manual(a.db,a.input))
+    elif a.command=='link-decide':
+        from .matching import decide
+        print(decide(a.db,a.input))
+    elif a.command=='link-verify':
+        from .matching import verify_certificate
+        print(verify_certificate(a.db,a.id))
     elif a.command=='load':print(load(a.db,a.path))
     elif a.command=='evaluate':print(evaluate(a.db))
     elif a.command=='report':print(export(a.db,a.out))

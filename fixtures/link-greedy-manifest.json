@@ -1,0 +1,19 @@
+{
+  "manifest_id": "link-G1",
+  "batch_id": "link-demo",
+  "dataset_version": "d2",
+  "left_provider": "A",
+  "right_provider": "B",
+  "left_ids": ["a1", "a2"],
+  "right_ids": ["b1", "b2"],
+  "edges": [
+    {"left": "a1", "right": "b1", "claims": [
+      {"id": "g11a", "source": "matcher-A", "score": 9}, {"id": "g11b", "source": "matcher-B", "score": 9}]},
+    {"left": "a1", "right": "b2", "claims": [
+      {"id": "g12a", "source": "matcher-A", "score": 8}, {"id": "g12b", "source": "matcher-B", "score": 8}]},
+    {"left": "a2", "right": "b1", "claims": [
+      {"id": "g21a", "source": "matcher-A", "score": 8}, {"id": "g21b", "source": "matcher-B", "score": 8}]},
+    {"left": "a2", "right": "b2", "claims": [
+      {"id": "g22a", "source": "matcher-A", "score": 1}, {"id": "g22b", "source": "matcher-B", "score": 1}]}
+  ]
+}

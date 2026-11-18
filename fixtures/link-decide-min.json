@@ -1,0 +1,5 @@
+{
+  "certificate_id": "link-cert-min-1",
+  "manifest_id": "link-S1",
+  "contract": "max_min_pair_score"
+}

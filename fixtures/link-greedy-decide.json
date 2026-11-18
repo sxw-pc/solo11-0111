@@ -1,0 +1,5 @@
+{
+  "certificate_id": "link-cert-greedy-1",
+  "manifest_id": "link-G1",
+  "contract": "max_total_score"
+}

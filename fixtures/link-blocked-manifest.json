@@ -1,0 +1,17 @@
+{
+  "manifest_id": "link-X1",
+  "batch_id": "link-demo",
+  "dataset_version": "d2",
+  "left_provider": "A",
+  "right_provider": "B",
+  "left_ids": ["a1", "a2", "a3"],
+  "right_ids": ["b1", "b2", "b3"],
+  "edges": [
+    {"left": "a1", "right": "b1", "claims": [
+      {"id": "x11a", "source": "matcher-A", "score": 7}, {"id": "x11b", "source": "matcher-B", "score": 7}]},
+    {"left": "a2", "right": "b1", "claims": [
+      {"id": "x21a", "source": "matcher-A", "score": 6}, {"id": "x21b", "source": "matcher-B", "score": 6}]},
+    {"left": "a3", "right": "b3", "claims": [
+      {"id": "x33a", "source": "matcher-A", "score": 5}, {"id": "x33b", "source": "matcher-B", "score": 5}]}
+  ]
+}

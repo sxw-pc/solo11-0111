@@ -1,6 +1,10 @@
 # 用途授权判定台
 
-合成双提供方清单的候选实体链接可用 `link-record` 冻结左右记录和两份独立评分声明，再用 `link-manual` 评估人工指定的一对一完整配对。示例：`python -m purposegate init --db ledger.db --config fixtures/link-config.json`，再运行 `python -m purposegate link-record --db ledger.db --input fixtures/link-manifest.json` 和 `python -m purposegate link-manual --db ledger.db --input fixtures/link-manual.json`。`purposegate/matching.py` 不求最优配对，也不把链接结果当成任何人的授权。
+合成双提供方清单的候选实体链接可用 `link-record` 冻结左右记录和两份独立评分声明，再用 `link-manual` 评估人工指定的一对一完整配对。示例：`python -m purposegate init --db ledger.db --config fixtures/link-config.json`，再运行 `python -m purposegate link-record --db ledger.db --input fixtures/link-manifest.json` 和 `python -m purposegate link-manual --db ledger.db --input fixtures/link-manual.json`。`purposegate/matching.py` 的 `evaluate_manual` 只评价人工给出的映射，不寻找最优配对，也不把链接结果当成任何人的授权。
+
+## 规范实体配对证书
+
+`link-decide --db DB --input PLAN` 在冻结清单上按治理者事先选定的复核合同精确求解完整一对一配对：`max_total_score` 先最大化保守分（每边取其全部独立声明的最小分值）总和再最大化最低边分，`max_min_pair_score` 先最大化最低边分再最大化总分，仍并列按冻结 left/right ID 序破同分。证书给出规范实体键（仅由冻结清单摘要与配对身份派生的本地合成 ID）、每对真实 left↔right 的 claim ID/原分/保守分、总分、最低分、来源摘要与全局最优性证据（有限位掩码 DP，最多 12×12 记录与 80 候选边）。无完美匹配时给出可复核的最小阻断割（霍尔违例），预算耗尽时报 `indeterminate` 与已证上下界，不把可行映射冒称最优。`link-verify --db DB --id CERT` 从冻结原始 manifest 独立重算候选图、保守分、完整匹配与目标最优性，识别伪造 claim、重复右记录或次优映射。示例计划见 `fixtures/link-decide-total.json` 与 `fixtures/link-decide-min.json`：同一验收图上两合同的真实配对全部不同（直连 25/5 对循环 24/8）；`fixtures/link-greedy-manifest.json` 证明逐边最高分贪心只得 10 而全局交叉配对得 16。配对仅是合成记录的实际对应关系，不创建联合产品，不构成任何人的授权，不接入授权判定、交付或用后审计。
 
 完全离线，输入与主体均为合成数据。`python -m pip install . --no-build-isolation` 安装；`python -m purposegate demo` 一条命令初始化 SQLite、导入 fixture、计算、生成 JSON/Markdown；`python -m pytest -q` 测试。
 
