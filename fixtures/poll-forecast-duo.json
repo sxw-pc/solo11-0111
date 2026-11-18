@@ -1,0 +1,21 @@
+{
+  "forecast_id": "forecast-D2",
+  "batch_id": "poll-demo",
+  "rule_version": "poll-v1",
+  "slots": ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8"],
+  "total_poll_budget": 6,
+  "max_polls_per_slot": 2,
+  "slot_capacities": [1, 2, 1, 2, 1, 2, 1, 2],
+  "feeds": [
+    {"id": "feed-delta", "weight": 3,
+     "change_probability": [
+       {"num": 1, "den": 2}, {"num": 1, "den": 4}, {"num": 3, "den": 4},
+       {"num": 1, "den": 10}, {"num": 2, "den": 3}, {"num": 1, "den": 5},
+       {"num": 1, "den": 2}, {"num": 1, "den": 10}]},
+    {"id": "feed-echo", "weight": 1,
+     "change_probability": [
+       {"num": 0, "den": 1}, {"num": 2, "den": 5}, {"num": 1, "den": 3},
+       {"num": 1, "den": 2}, {"num": 1, "den": 10}, {"num": 4, "den": 5},
+       {"num": 1, "den": 6}, {"num": 1, "den": 8}]}
+  ]
+}

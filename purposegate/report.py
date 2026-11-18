@@ -42,3 +42,33 @@ def verify(db_path):
             'SELECT 1 FROM evidence WHERE run_id=? AND subject=? AND event_id IS NOT NULL',(d['run_id'],d['subject'])).fetchone():
             problems.append(f'decision_source:{d["id"]}')
     db.close();return problems
+
+
+def poll_export(db_path,out):
+    """Snapshot the frozen polling ledger: forecast/plan identity, digests and
+    optimization status.  Raw bytes never leave the store in this report."""
+    from .polling import SCHEMA as POLL_SCHEMA
+    db=connect(db_path)
+    db.executescript(POLL_SCHEMA)
+    data={'forecasts':[dict(r) for r in db.execute(
+            'SELECT forecast_id,batch_id,digest FROM poll_forecast ORDER BY forecast_id')],
+      'manual_plans':[dict(r) for r in db.execute(
+            'SELECT plan_id,forecast_id,digest,result FROM poll_manual_plan ORDER BY plan_id')],
+      'optimized_plans':[dict(r) for r in db.execute(
+            'SELECT plan_id,forecast_id,contract,digest,result FROM poll_opt_plan ORDER BY plan_id')]}
+    for group in ('manual_plans','optimized_plans'):
+        for row in data[group]:
+            row['result']=json.loads(row['result'])
+    out=Path(out);out.parent.mkdir(parents=True,exist_ok=True)
+    out.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8')
+    lines=['# 离线轮询账本','',f'- 冻结预测 {len(data["forecasts"])} 份',
+           f'- 人工计划 {len(data["manual_plans"])} 份',
+           f'- 最优计划 {len(data["optimized_plans"])} 份','']
+    for row in data['optimized_plans']:
+        result=row['result']
+        lines.append(f'- {row["plan_id"]}（{row["contract"]}）：{result.get("status")}，'
+                     f'暴露 {result.get("expected_stale_num","-")}/{result.get("expected_stale_den","-")}，'
+                     f'最长间隔 {result.get("max_gap","-")}，digest {row["digest"][:12]}…')
+    out.with_suffix('.md').write_text('\n'.join(lines),encoding='utf-8')
+    db.close();return out
+

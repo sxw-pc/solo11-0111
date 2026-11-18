@@ -1,0 +1,5 @@
+{
+  "plan_id": "opt-M3-stale",
+  "forecast_id": "forecast-M3",
+  "contract": "min_expected_stale"
+}

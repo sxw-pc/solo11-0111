@@ -9,6 +9,9 @@ def main():
     i=sub.add_parser('init');i.add_argument('--db',required=True);i.add_argument('--config',required=True)
     pf=sub.add_parser('poll-forecast');pf.add_argument('--db',required=True);pf.add_argument('--input',required=True)
     pm=sub.add_parser('poll-manual');pm.add_argument('--db',required=True);pm.add_argument('--input',required=True)
+    po=sub.add_parser('poll-optimize');po.add_argument('--db',required=True);po.add_argument('--input',required=True)
+    pv=sub.add_parser('poll-verify');pv.add_argument('--db',required=True);pv.add_argument('--input',required=True)
+    pr=sub.add_parser('poll-report');pr.add_argument('--db',required=True);pr.add_argument('--out',required=True)
     l=sub.add_parser('load');l.add_argument('--db',required=True);l.add_argument('path')
     e=sub.add_parser('evaluate');e.add_argument('--db',required=True)
     r=sub.add_parser('report');r.add_argument('--db',required=True);r.add_argument('--out',required=True)
@@ -23,6 +26,14 @@ def main():
     if a.command=='demo':
         work=Path(a.workdir or tempfile.mkdtemp(prefix='evidence-'));work.mkdir(parents=True,exist_ok=True);db=work/'ledger.db';fixture=Path(__file__).resolve().parent.parent/'fixtures'
         initialize(db,fixture/'config.json');load(db,fixture/'events.jsonl');print(evaluate(db));print(export(db,work/'report.json'))
+        from .polling import evaluate_manual, optimize, record, verify_plan
+        initialize(db,fixture/'poll-config.json')
+        record(db,fixture/'poll-forecast.json');evaluate_manual(db,fixture/'poll-manual.json')
+        print(optimize(db,fixture/'poll-opt-request.json'))
+        print(optimize(db,fixture/'poll-opt-request-gap.json'))
+        print(verify_plan(db,fixture/'poll-verify-request.json'))
+        record(db,fixture/'poll-forecast-multi.json')
+        print(optimize(db,fixture/'poll-opt-multi-request.json'))
     elif a.command=='init':print(initialize(a.db,a.config))
     elif a.command=='poll-forecast':
         from .polling import record
@@ -30,6 +41,15 @@ def main():
     elif a.command=='poll-manual':
         from .polling import evaluate_manual
         print(evaluate_manual(a.db,a.input))
+    elif a.command=='poll-optimize':
+        from .polling import optimize
+        print(optimize(a.db,a.input))
+    elif a.command=='poll-verify':
+        from .polling import verify_plan
+        print(verify_plan(a.db,a.input))
+    elif a.command=='poll-report':
+        from .report import poll_export
+        print(poll_export(a.db,a.out))
     elif a.command=='load':print(load(a.db,a.path))
     elif a.command=='evaluate':print(evaluate(a.db))
     elif a.command=='report':print(export(a.db,a.out))

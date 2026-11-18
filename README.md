@@ -1,6 +1,8 @@
 # 用途授权判定台
 
-合成授权来源的采集轮询台账可用 `poll-forecast` 冻结逐槽更新概率、预算与来源，再用 `poll-manual` 评估人工时序的期望陈旧槽数、最长未轮询间隔和封账轮询是否可行；不访问网络。示例：`python -m purposegate init --db ledger.db --config fixtures/poll-config.json`，然后 `python -m purposegate poll-forecast --db ledger.db --input fixtures/poll-forecast.json`，最后 `python -m purposegate poll-manual --db ledger.db --input fixtures/poll-manual.json`。当前 `purposegate/polling.py` 不寻找最优轮询计划。
+合成授权来源的采集轮询台账可用 `poll-forecast` 冻结逐槽更新概率、预算、每槽容量与来源，再用 `poll-manual` 评估人工时序，或用 `poll-optimize` 求全局最优计划、`poll-verify` 从冻结原文独立复核；不访问网络。示例：`python -m purposegate init --db ledger.db --config fixtures/poll-config.json`，然后 `python -m purposegate poll-forecast --db ledger.db --input fixtures/poll-forecast.json`，接着 `python -m purposegate poll-optimize --db ledger.db --input fixtures/poll-opt-request.json`，最后 `python -m purposegate poll-verify --db ledger.db --input fixtures/poll-verify-request.json`。人工评估仍由 `poll-manual` 保留。
+
+`poll-optimize` 的输入固定两份目标合同之一：`min_expected_stale` 先最小化全源权重乘逐槽陈旧概率之和、再最小化最大未轮询间隔；`min_max_gap` 次序相反，并列时按槽序与源 ID 序稳定破同分。输出真实的源×槽轮询指令、逐槽 `q` 的精确分数、累计暴露、各源最大间隔、使用预算、来源摘要与全局最优性证据（DP 转移数、状态数、破同分规则）。求解是保留各源上次轮询槽与已用预算的有限时域精确 DP，非贪心；预算或容量不足以让所有源在末槽封账时返回 `infeasible` 及原因，转移预算耗尽时返回 `indeterminate` 与已证上下界，不冒称最优。`poll-verify` 重算逐槽 `q`、资源约束与目标最优性，可识别漏轮询、乘积错算、概率篡改和次优替换。
 
 完全离线，输入与主体均为合成数据。`python -m pip install . --no-build-isolation` 安装；`python -m purposegate demo` 一条命令初始化 SQLite、导入 fixture、计算、生成 JSON/Markdown；`python -m pytest -q` 测试。
 

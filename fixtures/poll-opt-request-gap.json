@@ -1,0 +1,5 @@
+{
+  "plan_id": "opt-S1-gap",
+  "forecast_id": "forecast-S1",
+  "contract": "min_max_gap"
+}
